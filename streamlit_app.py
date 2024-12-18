@@ -18,7 +18,7 @@ st.write("The name that will appear on the Smoothie is", name_on_cup)
 cnx = st.connection("snowflake")
 session = cnx.session()
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('fruit_name'))
-st.dataframe(data=my_dataframe, use_container_width=True)
+#st.dataframe(data=my_dataframe, use_container_width=True)
 
 ingredient_list = st.multiselect('Choose up to 6 ingredients:',
                                     my_dataframe,
@@ -30,6 +30,9 @@ if ingredient_list:
 
     for fruit_chosen in ingredient_list:
         ingredients_string += fruit_chosen + ' '
+        st.subheader(fruit_chosen + ' Nutrition Information')
+        smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/"+fruit_chosen)
+        st_df = st.dataframe(data = smoothiefroot_response.json(), use_container_width=True)
 
     #st.write(ingredient_string)
 
@@ -45,5 +48,3 @@ if ingredient_list:
         session.sql(my_insert_stmt).collect()
         st.success('Your Smoothie is ordered, '+name_on_cup+'!', icon="✅")
 
-smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/watermelon")
-st_df = st.dataframe(data = smoothiefroot_response.json(), use_container_width=True)
